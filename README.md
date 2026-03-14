@@ -33,7 +33,7 @@ npm install
 Create `.env`:
 
 ```env
-VITE_API_BASE_URL=http://localhost:8080
+VITE_API_BASE_URL=http://localhost:7777
 ```
 
 ### Run
@@ -139,5 +139,5 @@ src/
 
 ## Notes
 
-- Global API base URL comes from `VITE_API_BASE_URL`.
+- Global API base URL comes from `VITE_API_BASE_URL` (default: `http://localhost:7777`).
 - Main request base path is `/api/v1`.
