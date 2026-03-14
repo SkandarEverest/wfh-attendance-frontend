@@ -24,12 +24,13 @@ export default function CheckInModal({
   onClose,
   onSuccess,
 }: CheckInModalProps) {
+  const today = dayjs().format("YYYY-MM-DD");
   const apiErrorHandler = useApiErrorHandler();
   const [preview, setPreview] = useState<string | null>(null);
 
   const formik = useFormik<CheckInFormValues>({
     initialValues: {
-      workDate: dayjs().format("YYYY-MM-DD"),
+      workDate: today,
       notes: "",
       photo: null,
     },
@@ -108,7 +109,8 @@ export default function CheckInModal({
             id="workDate"
             name="workDate"
             type="date"
-            max={dayjs().format("YYYY-MM-DD")}
+            min={today}
+            max={today}
             value={formik.values.workDate}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
