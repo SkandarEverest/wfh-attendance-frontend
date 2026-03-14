@@ -6,7 +6,7 @@ import { useAuthStore } from "@/stores/authStore";
 const getToken = () => useAuthStore.getState().token;
 
 export const timesheetService = {
-  getAll: async (params?: { page?: number; size?: number }) => {
+  getAll: async (params?: { page?: number; size?: number; name?: string }) => {
     return new Service(serviceUrls.timesheetsPath(), getToken()).get<
       PaginatedResponse<Timesheet>
     >(params);

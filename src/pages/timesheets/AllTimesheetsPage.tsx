@@ -7,12 +7,17 @@ import { useApiErrorHandler } from "@/hooks/handlers/useApiErrorHandler";
 import { useAuthStore } from "@/stores/authStore";
 import { hasModuleAccess } from "@/utils/permissions";
 import Table from "@/components/common/Table";
+import Button from "@/components/common/Button";
+import Field from "@/components/common/Field";
+import Input from "@/components/common/Input";
 
 export default function AllTimesheetsPage() {
   const [timesheets, setTimesheets] = useState<Timesheet[]>([]);
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
   const [total, setTotal] = useState(0);
+  const [nameKeyword, setNameKeyword] = useState("");
+  const [appliedName, setAppliedName] = useState("");
   const [loading, setLoading] = useState(true);
   const user = useAuthStore((s) => s.user);
   const hasTimesheetModule = hasModuleAccess(user, "timesheet");
@@ -24,7 +29,11 @@ export default function AllTimesheetsPage() {
   const fetchTimesheets = useCallback(async () => {
     try {
       setLoading(true);
-      const { data } = await timesheetService.getAll({ page, size });
+      const { data } = await timesheetService.getAll({
+        page,
+        size,
+        ...(appliedName ? { name: appliedName } : {}),
+      });
       setTimesheets(data.data);
       setTotal(data.total ?? data.meta?.total ?? data.data.length);
     } catch (err) {
@@ -32,7 +41,7 @@ export default function AllTimesheetsPage() {
     } finally {
       setLoading(false);
     }
-  }, [apiErrorHandler, page, size]);
+  }, [apiErrorHandler, appliedName, page, size]);
 
   useEffect(() => {
     if (!canAccessAllTimesheets) {
@@ -64,6 +73,25 @@ export default function AllTimesheetsPage() {
       </div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">All Timesheets</h1>
+      </div>
+      <div className="mb-4 flex items-end gap-2">
+        <Field title="Filter by name" className="mb-0 w-full max-w-sm">
+          <Input
+            id="employeeName"
+            type="text"
+            value={nameKeyword}
+            onChange={(e) => setNameKeyword(e.target.value)}
+            placeholder="Type employee name"
+          />
+        </Field>
+        <Button
+          onClick={() => {
+            setAppliedName(nameKeyword.trim());
+            setPage(1);
+          }}
+        >
+          Filter
+        </Button>
       </div>
 
       <Table
