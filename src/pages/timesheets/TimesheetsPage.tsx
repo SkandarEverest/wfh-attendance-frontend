@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { timesheetService } from "@/services/timesheetService";
 import type { Timesheet } from "@/types";
 import { myTimesheetColumns } from "@/hooks/tables/columns/myTimesheetColumns";
 import { useApiErrorHandler } from "@/hooks/handlers/useApiErrorHandler";
+import { useAuthStore } from "@/stores/authStore";
+import { hasModuleAccess } from "@/utils/permissions";
 import Table from "@/components/common/Table";
 import Button from "@/components/common/Button";
 import CheckInModal from "./partials/modals/CheckInModal";
@@ -12,6 +14,9 @@ export default function TimesheetsPage() {
   const [timesheets, setTimesheets] = useState<Timesheet[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const user = useAuthStore((s) => s.user);
+  const hasTimesheetModule = hasModuleAccess(user, "timesheet");
+  const canAccessMyTimesheets = user?.isSpecial === false && hasTimesheetModule;
   const apiErrorHandler = useApiErrorHandler();
 
   const columns = myTimesheetColumns();
@@ -28,8 +33,15 @@ export default function TimesheetsPage() {
   };
 
   useEffect(() => {
-    fetchTimesheets();
-  }, []);
+    if (!canAccessMyTimesheets) {
+      return;
+    }
+    void fetchTimesheets();
+  }, [canAccessMyTimesheets]);
+
+  if (!canAccessMyTimesheets) {
+    return <Navigate to="/" replace />;
+  }
 
   if (loading) {
     return (

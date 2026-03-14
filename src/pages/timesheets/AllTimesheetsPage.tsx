@@ -1,19 +1,28 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { timesheetService } from "@/services/timesheetService";
 import type { Timesheet } from "@/types";
 import { allTimesheetColumns } from "@/hooks/tables/columns/allTimesheetColumns";
 import { useApiErrorHandler } from "@/hooks/handlers/useApiErrorHandler";
+import { useAuthStore } from "@/stores/authStore";
+import { hasModuleAccess } from "@/utils/permissions";
 import Table from "@/components/common/Table";
 
 export default function AllTimesheetsPage() {
   const [timesheets, setTimesheets] = useState<Timesheet[]>([]);
   const [loading, setLoading] = useState(true);
+  const user = useAuthStore((s) => s.user);
+  const hasTimesheetModule = hasModuleAccess(user, "timesheet");
+  const canAccessAllTimesheets = user?.isSpecial === true && hasTimesheetModule;
   const apiErrorHandler = useApiErrorHandler();
 
   const columns = allTimesheetColumns();
 
   useEffect(() => {
+    if (!canAccessAllTimesheets) {
+      return;
+    }
+
     const fetchTimesheets = async () => {
       try {
         const { data } = await timesheetService.getAll();
@@ -24,8 +33,12 @@ export default function AllTimesheetsPage() {
         setLoading(false);
       }
     };
-    fetchTimesheets();
-  }, []);
+    void fetchTimesheets();
+  }, [canAccessAllTimesheets]);
+
+  if (!canAccessAllTimesheets) {
+    return <Navigate to="/" replace />;
+  }
 
   if (loading) {
     return (

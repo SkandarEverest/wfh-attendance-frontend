@@ -28,6 +28,7 @@ export type ActiveUser = {
   email: string;
   roleId: number;
   roleName: string;
+  isSpecial?: boolean;
   modules: UserModule[];
 };
 

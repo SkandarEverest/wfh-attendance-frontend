@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { userService } from "@/services/userService";
 import type { Role, User } from "@/types";
 import { userColumns } from "@/hooks/tables/columns/userColumns";
 import { useApiErrorHandler } from "@/hooks/handlers/useApiErrorHandler";
+import { useAuthStore } from "@/stores/authStore";
+import { hasModuleAccess } from "@/utils/permissions";
 import Table from "@/components/common/Table";
 import Button from "@/components/common/Button";
 import CreateUserModal from "./partials/modals/CreateUserModal";
@@ -18,6 +20,8 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [modalToShow, setModalToShow] = useState<UserModal>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const user = useAuthStore((s) => s.user);
+  const canAccessUsers = hasModuleAccess(user, "user");
   const apiErrorHandler = useApiErrorHandler();
 
   const fetchData = async () => {
@@ -71,6 +75,10 @@ export default function UsersPage() {
   };
 
   const columns = userColumns({ onEdit: handleEdit, onDelete: handleDelete });
+
+  if (!canAccessUsers) {
+    return <Navigate to="/" replace />;
+  }
 
   if (loading) {
     return (

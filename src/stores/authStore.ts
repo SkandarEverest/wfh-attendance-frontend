@@ -31,7 +31,7 @@ export const useAuthStore = create(
     }),
     {
       name: "wfh-auth",
-      version: 2,
+      version: 3,
       migrate: (persistedState) => {
         const state = (persistedState ?? {}) as Partial<AuthState> & {
           user?: Record<string, unknown> | null;
@@ -53,11 +53,20 @@ export const useAuthStore = create(
                   (previousUser.role as { name?: string } | undefined)?.name ??
                     "",
                 ),
+                isSpecial: Boolean(previousUser.isSpecial ?? false),
                 modules: Array.isArray(previousUser.modules)
                   ? previousUser.modules
                   : [],
               }
-            : (previousUser as ActiveUser | null | undefined);
+            : previousUser
+              ? {
+                  ...(previousUser as ActiveUser),
+                  isSpecial: Boolean(
+                    previousUser.isSpecial ??
+                      previousUser.roleName === "Admin",
+                  ),
+                }
+              : null;
 
         return {
           ...initialState,

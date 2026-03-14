@@ -11,7 +11,7 @@ export default function MainLayout({
 
   const user = useAuthStore((s) => s.user);
   const reset = useAuthStore((s) => s.reset);
-  const isAdmin = user?.roleName === "Admin";
+  const isAdmin = Boolean(user?.isSpecial);
 
   const handleLogout = async () => {
     try {
