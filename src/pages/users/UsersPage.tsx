@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { userService } from "@/services/userService";
 import type { Role, User } from "@/types";
-import { userColumns } from "@/hooks/tables/columns/userColumns";
+import { userColumns } from "@/components/tables/columns/userColumns";
 import { useApiErrorHandler } from "@/hooks/handlers/useApiErrorHandler";
 import { useAuthStore } from "@/stores/authStore";
 import { hasModuleAccess } from "@/utils/permissions";

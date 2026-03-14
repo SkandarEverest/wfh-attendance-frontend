@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { timesheetService } from "@/services/timesheetService";
 import type { Timesheet } from "@/types";
-import { myTimesheetColumns } from "@/hooks/tables/columns/myTimesheetColumns";
+import { myTimesheetColumns } from "@/components/tables/columns/myTimesheetColumns";
 import { useApiErrorHandler } from "@/hooks/handlers/useApiErrorHandler";
 import { useAuthStore } from "@/stores/authStore";
 import { hasModuleAccess } from "@/utils/permissions";
