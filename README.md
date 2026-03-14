@@ -1,122 +1,143 @@
 # WFH Attendance Frontend
 
-A standalone React + TypeScript frontend for the WFH (Work From Home) Attendance system.
+React + TypeScript frontend for the WFH attendance system.
 
 ## Tech Stack
 
-- **React 18** with TypeScript
-- **Vite** — build tool
-- **Axios** — HTTP client (cookie-based auth with `withCredentials`)
-- **Zustand** — state management (auth store with localStorage persist)
-- **React Router DOM** — client-side routing with lazy loading
-- **React Hook Form + Zod** — form handling and validation
-- **Day.js** — date formatting
+- React 18 + TypeScript
+- Vite
+- Tailwind CSS
+- Axios
+- React Router DOM
+- Zustand (persisted auth store)
+- Formik + Zod (`zod-formik-adapter`)
+- TanStack React Table
+- React Toastify
+- Day.js
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js >= 18
+- Node.js >= 24
 - npm >= 9
 
-### Install dependencies
+### Install
 
 ```bash
-cd wfh-attendance-frontend
 npm install
 ```
 
-### Configure environment
+### Environment
 
-Create a `.env` file:
+Create `.env`:
 
 ```env
 VITE_API_BASE_URL=http://localhost:8080
 ```
 
-### Run development server
+### Run
 
 ```bash
 npm run dev
 ```
 
-The app will start at [http://localhost:3000](http://localhost:3000).
+Vite default local URL is usually `http://localhost:5173`.
 
-### Build for production
+### Build
 
 ```bash
 npm run build
 ```
 
-Output will be in the `dist/` folder.
+### Preview Production Build
+
+```bash
+npm run preview
+```
+
+## Routing
+
+- `/auth/login` - Login
+- `/` - Dashboard
+- `/timesheets` - My Timesheets
+- `/timesheets/all` - All Timesheets
+- `/users` - Users
+
+`/login` redirects to `/auth/login`.
+
+## Auth & Access Control
+
+- Auth state is stored in Zustand (`token` + `user`) and persisted in localStorage.
+- API requests include bearer token when available and also use `withCredentials`.
+- Main app routes are protected in `MainLayout` (redirect to login if no user).
+- Dashboard and page access are permission-based:
+  - `hasModuleAccess(user, "timesheet")` gates timesheet features.
+  - `hasModuleAccess(user, "user")` gates users feature.
+  - `user.isSpecial` determines special-role pages:
+    - My Timesheets: `isSpecial === false`
+    - All Timesheets: `isSpecial === true`
+
+## Key Features
+
+### Timesheets
+
+- My Timesheets list with server-driven pagination (`page`, `size`).
+- All Timesheets list with server-driven pagination and name filter.
+- Check-in modal with required fields:
+  - `workDate` required
+  - `notes` required
+  - `photo` required (max 5MB, jpeg/png/webp)
+- Timesheet photo preview opens in modal:
+  - Uses `GET /api/v1/timesheets/photo?path=...`
+  - Loaded as blob via `timesheetService`.
+
+### Users
+
+- Users list with server-driven pagination.
+- Create, edit, and delete users via modals.
+
+### UI
+
+- Reusable form controls (`Input`, `Textarea`, `Select`) for consistent styling.
+- Shared table + pagination component.
+- Breadcrumbs on pages to return to dashboard.
+
+## API Services
+
+- `authService`
+  - login, logout, profile
+- `timesheetService`
+  - `getMy({ page, size })`
+  - `getAll({ page, size, name })`
+  - `checkIn(formData)`
+  - `getPhotoBlob(path)`
+- `userService`
+  - roles, paginated list, create, update, delete
 
 ## Project Structure
 
-```
+```text
 src/
-├── main.tsx                        # Entry point
-├── App.tsx                         # Root component (fetches profile on load)
-├── router.tsx                      # Route definitions
-├── index.css                       # Global styles
-├── lib/
-│   └── axios.ts                    # Axios instance (withCredentials, interceptors)
-├── types/
-│   ├── entities.ts                 # User, Role, Timesheet
-│   ├── requests.ts                 # LoginRequest, CreateUserRequest, etc.
-│   ├── responses.ts                # GenericResponse<T>, PaginatedResponse<T>
-│   └── index.ts                    # Barrel export
-├── schemas/
-│   ├── auth.ts                     # Login form Zod schema
-│   ├── user.ts                     # Create/Edit user Zod schemas
-│   └── timesheet.ts                # Check-in form Zod schema
-├── services/
-│   ├── authService.ts              # POST /auth, /auth/logout, GET /auth/profile
-│   ├── userService.ts              # CRUD /users, GET /users/roles
-│   └── timesheetService.ts         # GET /timesheets, POST /timesheets/check-in
-├── stores/
-│   └── authStore.ts                # Zustand store (user, auth state, profile fetch)
 ├── components/
-│   └── layouts/
-│       ├── AuthLayout.tsx          # Wraps login page; redirects if authenticated
-│       ├── MainLayout.tsx          # App shell (header, nav, user info)
-│       └── ProtectedRoute.tsx      # Guards routes; redirects to /login if not authed
-└── pages/
-    ├── auth/
-    │   └── LoginPage.tsx           # Login form
-    ├── dashboard/
-    │   └── DashboardPage.tsx       # Landing page with quick-links
-    ├── timesheets/
-    │   ├── TimesheetsPage.tsx      # Employee's own timesheet history
-    │   ├── CheckInPage.tsx         # Check-in form with photo upload
-    │   └── AllTimesheetsPage.tsx   # Admin: all employee timesheets
-    └── users/
-        ├── UsersPage.tsx           # Admin: user list with delete
-        ├── CreateUserPage.tsx      # Admin: create user form
-        └── EditUserPage.tsx        # Admin: edit user form
+│   ├── common/
+│   ├── layouts/
+│   └── tables/columns/
+├── hooks/
+├── pages/
+│   ├── auth/
+│   ├── dashboard/
+│   ├── timesheets/
+│   └── users/
+├── routes/
+├── schemas/
+├── services/
+├── stores/
+├── types/
+└── utils/
 ```
 
-## Routes
+## Notes
 
-| Path                | Page              | Access    |
-|---------------------|-------------------|-----------|
-| `/login`            | LoginPage         | Public    |
-| `/`                 | DashboardPage     | Protected |
-| `/timesheets`       | TimesheetsPage    | Protected |
-| `/timesheets/check-in` | CheckInPage   | Protected |
-| `/timesheets/all`   | AllTimesheetsPage | Admin     |
-| `/users`            | UsersPage         | Admin     |
-| `/users/create`     | CreateUserPage    | Admin     |
-| `/users/:id/edit`   | EditUserPage      | Admin     |
-
-## Authentication Flow
-
-1. Backend uses **cookie-based JWT** — no token stored in frontend
-2. On app load, `App.tsx` calls `GET /api/v1/auth/profile` to verify session
-3. If unauthenticated, user is redirected to `/login`
-4. On login, `POST /api/v1/auth` sets the session cookie
-5. User info is stored in Zustand (persisted to localStorage for fast reload)
-6. Axios interceptor redirects to `/login` on any 401 response
-
-## API Base URL
-
-Configured via `VITE_API_BASE_URL` environment variable. Defaults to `http://localhost:8080`. All API calls go to `{baseURL}/api/v1/...`.
+- Global API base URL comes from `VITE_API_BASE_URL`.
+- Main request base path is `/api/v1`.
