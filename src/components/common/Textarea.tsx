@@ -1,6 +1,6 @@
 import { forwardRef, type TextareaHTMLAttributes } from "react";
 import clsx from "clsx";
-import { formControlClassName } from "./formControlStyles";
+import { formControlClassName } from "../../utils/formControlStyles";
 
 type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement>;
 

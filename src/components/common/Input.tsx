@@ -1,6 +1,6 @@
 import { forwardRef, type InputHTMLAttributes } from "react";
 import clsx from "clsx";
-import { formControlClassName } from "./formControlStyles";
+import { formControlClassName } from "../../utils/formControlStyles";
 
 type InputProps = InputHTMLAttributes<HTMLInputElement>;
 
