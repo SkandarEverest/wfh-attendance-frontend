@@ -2,6 +2,9 @@
 
 React + TypeScript frontend for the WFH attendance system.
 
+Backend repository:
+- https://github.com/SkandarEverest/wfh-attendance-backend
+
 ## Tech Stack
 
 - React 18 + TypeScript
@@ -34,6 +37,17 @@ Create `.env`:
 
 ```env
 VITE_API_BASE_URL=http://localhost:7777
+```
+
+### First-Time Login
+
+Use the following credentials on the login page for initial access:
+
+```json
+{
+  "email": "admin@wfh.local",
+  "password": "password"
+}
 ```
 
 ### Run
