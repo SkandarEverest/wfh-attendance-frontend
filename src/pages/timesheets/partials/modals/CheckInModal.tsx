@@ -111,6 +111,7 @@ export default function CheckInModal({
             type="date"
             min={today}
             max={today}
+            disabled
             value={formik.values.workDate}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
