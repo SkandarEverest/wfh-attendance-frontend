@@ -18,19 +18,24 @@ export const timesheetService = {
     >();
   },
 
-  getById: async (id: number) => {
-    return new Service(
-      serviceUrls.timesheetsPath(String(id)),
-      getToken(),
-    ).get<GenericResponse<Timesheet>>();
-  },
-
   checkIn: async (data: FormData) => {
     return new Service(
       serviceUrls.timesheetsPath("check-in"),
       getToken(),
     ).post<GenericResponse<Timesheet>>(data, {
       headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+
+  getPhotoBlob: async (path: string) => {
+    return new Service(
+      serviceUrls.timesheetsPath("photo"),
+      getToken(),
+    ).request<Blob>("GET", undefined, {
+      additionalConfig: {
+        params: { path },
+        responseType: "blob",
+      },
     });
   },
 };

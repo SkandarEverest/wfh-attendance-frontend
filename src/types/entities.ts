@@ -50,8 +50,9 @@ export type Timesheet = {
   id: number;
   userId: number;
   user?: User;
+  workDate?: string;
   checkInTime: string;
-  photoUrl: string | null;
+  photoPath: string | null;
   notes: string | null;
   createdAt: string;
   updatedAt: string;

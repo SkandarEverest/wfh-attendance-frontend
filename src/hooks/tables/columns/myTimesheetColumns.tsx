@@ -1,6 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import type { Timesheet } from "@/types";
 import dayjs from "dayjs";
+import TimesheetPhotoLink from "@/components/common/PhotoLink";
 
 export const myTimesheetColumns: () => ColumnDef<Timesheet, unknown>[] =
   () => [
@@ -26,22 +27,10 @@ export const myTimesheetColumns: () => ColumnDef<Timesheet, unknown>[] =
     },
     {
       header: "Photo",
-      id: "photoUrl",
-      accessorKey: "photoUrl",
-      cell: ({ getValue }) => {
-        const url = getValue<string | null>();
-        return url ? (
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: "#2563eb" }}
-          >
-            View
-          </a>
-        ) : (
-          <span>-</span>
-        );
-      },
+      id: "photoPath",
+      accessorKey: "photoPath",
+      cell: ({ getValue }) => (
+        <TimesheetPhotoLink photoPath={getValue<string | null>()} />
+      ),
     },
   ];
