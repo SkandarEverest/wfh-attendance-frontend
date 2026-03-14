@@ -84,14 +84,20 @@ export default function AllTimesheetsPage() {
             placeholder="Type employee name"
           />
         </Field>
-        <Button
-          onClick={() => {
-            setAppliedName(nameKeyword.trim());
-            setPage(1);
-          }}
+        <Field
+          title={<span className="invisible">Filter</span>}
+          className="mb-0"
         >
-          Filter
-        </Button>
+          <Button
+            className="h-[38px] shrink-0"
+            onClick={() => {
+              setAppliedName(nameKeyword.trim());
+              setPage(1);
+            }}
+          >
+            Filter
+          </Button>
+        </Field>
       </div>
 
       <Table
