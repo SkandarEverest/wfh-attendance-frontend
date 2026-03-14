@@ -158,8 +158,6 @@ src/
 
 ## Screenshots
 
-Add your screenshots under `docs/screenshots/`, then update file names below if needed.
-
 ### Timesheet Table
 ![Timesheet Table](./docs/screenshots/timesheet-table.png)
 
