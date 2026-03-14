@@ -10,6 +10,8 @@ import Modal from "@/components/common/Modal";
 import Field from "@/components/common/Field";
 import Button from "@/components/common/Button";
 import DropzoneField from "@/components/common/DropzoneField";
+import Input from "@/components/common/Input";
+import Textarea from "@/components/common/Textarea";
 
 interface CheckInModalProps {
   open: boolean;
@@ -100,11 +102,10 @@ export default function CheckInModal({
             formik.touched.workDate ? formik.errors.workDate : undefined
           }
         >
-          <input
+          <Input
             id="workDate"
             name="workDate"
             type="date"
-            className="w-full rounded border border-gray-light bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-blue-600 focus:ring-2 focus:ring-blue-200"
             max={dayjs().format("YYYY-MM-DD")}
             value={formik.values.workDate}
             onChange={formik.handleChange}
@@ -116,10 +117,9 @@ export default function CheckInModal({
           title="Notes (optional)"
           error={formik.touched.notes ? formik.errors.notes : undefined}
         >
-          <textarea
+          <Textarea
             id="notes"
             name="notes"
-            className="w-full rounded border border-gray-light bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-blue-600 focus:ring-2 focus:ring-blue-200"
             rows={3}
             placeholder="What are you working on today?"
             value={formik.values.notes ?? ""}

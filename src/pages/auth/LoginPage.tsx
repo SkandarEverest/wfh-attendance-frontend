@@ -7,6 +7,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { useApiErrorHandler } from "@/hooks/handlers/useApiErrorHandler";
 import Field from "@/components/common/Field";
 import Button from "@/components/common/Button";
+import Input from "@/components/common/Input";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -49,11 +50,10 @@ export default function LoginPage() {
           title="Email"
           error={formik.touched.email ? formik.errors.email : undefined}
         >
-          <input
+          <Input
             id="email"
             name="email"
             type="email"
-            className="w-full rounded border border-gray-light bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-blue-600 focus:ring-2 focus:ring-blue-200"
             placeholder="Enter your email"
             value={formik.values.email}
             onChange={formik.handleChange}
@@ -65,11 +65,10 @@ export default function LoginPage() {
           title="Password"
           error={formik.touched.password ? formik.errors.password : undefined}
         >
-          <input
+          <Input
             id="password"
             name="password"
             type="password"
-            className="w-full rounded border border-gray-light bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-blue-600 focus:ring-2 focus:ring-blue-200"
             placeholder="Enter your password"
             value={formik.values.password}
             onChange={formik.handleChange}
