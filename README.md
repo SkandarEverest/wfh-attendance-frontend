@@ -155,3 +155,13 @@ src/
 
 - Global API base URL comes from `VITE_API_BASE_URL` (default: `http://localhost:7777`).
 - Main request base path is `/api/v1`.
+
+## Screenshots
+
+Add your screenshots under `docs/screenshots/`, then update file names below if needed.
+
+### Timesheet Table
+![Timesheet Table](./docs/screenshots/timesheet-table.png)
+
+### Timesheet Photo Modal
+![Timesheet Photo Modal](./docs/screenshots/timesheet-photo-modal.png)
