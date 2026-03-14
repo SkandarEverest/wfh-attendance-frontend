@@ -99,7 +99,9 @@ export default function CheckInModal({
         <Field
           title="Work Date"
           error={
-            formik.touched.workDate ? formik.errors.workDate : undefined
+            formik.touched.workDate || formik.submitCount > 0
+              ? formik.errors.workDate
+              : undefined
           }
         >
           <Input
@@ -114,8 +116,12 @@ export default function CheckInModal({
         </Field>
 
         <Field
-          title="Notes (optional)"
-          error={formik.touched.notes ? formik.errors.notes : undefined}
+          title="Notes"
+          error={
+            formik.touched.notes || formik.submitCount > 0
+              ? formik.errors.notes
+              : undefined
+          }
         >
           <Textarea
             id="notes"
@@ -129,9 +135,11 @@ export default function CheckInModal({
         </Field>
 
         <Field
-          title="Photo Proof (optional)"
+          title="Photo Proof"
           error={
-            formik.touched.photo ? (formik.errors.photo as string) : undefined
+            formik.touched.photo || formik.submitCount > 0
+              ? (formik.errors.photo as string)
+              : undefined
           }
         >
           <DropzoneField

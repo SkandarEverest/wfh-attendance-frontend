@@ -5,11 +5,18 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 export const checkInSchema = z.object({
   workDate: z.string().min(1, "Work date is required"),
-  notes: z.string().optional(),
+  notes: z.string().trim().min(1, "Notes is required"),
   photo: z
     .instanceof(File)
     .nullable()
-    .optional()
+    .superRefine((file, ctx) => {
+      if (!file) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Photo is required",
+        });
+      }
+    })
     .refine(
       (file) => !file || file.size <= MAX_FILE_SIZE,
       "File size must be less than 5MB",
