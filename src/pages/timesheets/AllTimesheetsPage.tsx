@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { timesheetService } from "@/services/timesheetService";
 import type { Timesheet } from "@/types";
@@ -10,6 +10,9 @@ import Table from "@/components/common/Table";
 
 export default function AllTimesheetsPage() {
   const [timesheets, setTimesheets] = useState<Timesheet[]>([]);
+  const [page, setPage] = useState(1);
+  const [size, setSize] = useState(10);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const user = useAuthStore((s) => s.user);
   const hasTimesheetModule = hasModuleAccess(user, "timesheet");
@@ -18,23 +21,25 @@ export default function AllTimesheetsPage() {
 
   const columns = allTimesheetColumns();
 
+  const fetchTimesheets = useCallback(async () => {
+    try {
+      setLoading(true);
+      const { data } = await timesheetService.getAll({ page, size });
+      setTimesheets(data.data);
+      setTotal(data.total ?? data.meta?.total ?? data.data.length);
+    } catch (err) {
+      apiErrorHandler(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [apiErrorHandler, page, size]);
+
   useEffect(() => {
     if (!canAccessAllTimesheets) {
       return;
     }
-
-    const fetchTimesheets = async () => {
-      try {
-        const { data } = await timesheetService.getAll();
-        setTimesheets(data.data);
-      } catch (err) {
-        apiErrorHandler(err);
-      } finally {
-        setLoading(false);
-      }
-    };
     void fetchTimesheets();
-  }, [canAccessAllTimesheets]);
+  }, [canAccessAllTimesheets, fetchTimesheets]);
 
   if (!canAccessAllTimesheets) {
     return <Navigate to="/" replace />;
@@ -65,6 +70,16 @@ export default function AllTimesheetsPage() {
         data={timesheets}
         columns={columns}
         emptyMessage="No timesheets found."
+        pagination={{
+          page,
+          size,
+          total,
+          onPageChange: setPage,
+          onPageSizeChange: (nextSize) => {
+            setSize(nextSize);
+            setPage(1);
+          },
+        }}
       />
     </div>
   );

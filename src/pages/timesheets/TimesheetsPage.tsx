@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { timesheetService } from "@/services/timesheetService";
 import type { Timesheet } from "@/types";
@@ -12,6 +12,9 @@ import CheckInModal from "./partials/modals/CheckInModal";
 
 export default function TimesheetsPage() {
   const [timesheets, setTimesheets] = useState<Timesheet[]>([]);
+  const [page, setPage] = useState(1);
+  const [size, setSize] = useState(10);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const user = useAuthStore((s) => s.user);
@@ -21,23 +24,25 @@ export default function TimesheetsPage() {
 
   const columns = myTimesheetColumns();
 
-  const fetchTimesheets = async () => {
+  const fetchTimesheets = useCallback(async () => {
     try {
-      const { data } = await timesheetService.getMy();
+      setLoading(true);
+      const { data } = await timesheetService.getMy({ page, size });
       setTimesheets(data.data);
+      setTotal(data.total ?? data.meta?.total ?? data.data.length);
     } catch (err) {
       apiErrorHandler(err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiErrorHandler, page, size]);
 
   useEffect(() => {
     if (!canAccessMyTimesheets) {
       return;
     }
     void fetchTimesheets();
-  }, [canAccessMyTimesheets]);
+  }, [canAccessMyTimesheets, fetchTimesheets]);
 
   if (!canAccessMyTimesheets) {
     return <Navigate to="/" replace />;
@@ -70,6 +75,16 @@ export default function TimesheetsPage() {
           data={timesheets}
           columns={columns}
           emptyMessage="No timesheets found. Start by checking in!"
+          pagination={{
+            page,
+            size,
+            total,
+            onPageChange: setPage,
+            onPageSizeChange: (nextSize) => {
+              setSize(nextSize);
+              setPage(1);
+            },
+          }}
         />
       </div>
 

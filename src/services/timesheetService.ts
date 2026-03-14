@@ -6,16 +6,16 @@ import { useAuthStore } from "@/stores/authStore";
 const getToken = () => useAuthStore.getState().token;
 
 export const timesheetService = {
-  getAll: async () => {
+  getAll: async (params?: { page?: number; size?: number }) => {
     return new Service(serviceUrls.timesheetsPath(), getToken()).get<
       PaginatedResponse<Timesheet>
-    >();
+    >(params);
   },
 
-  getMy: async () => {
+  getMy: async (params?: { page?: number; size?: number }) => {
     return new Service(serviceUrls.timesheetsPath("my"), getToken()).get<
       PaginatedResponse<Timesheet>
-    >();
+    >(params);
   },
 
   checkIn: async (data: FormData) => {

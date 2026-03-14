@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { userService } from "@/services/userService";
 import type { Role, User } from "@/types";
@@ -17,6 +17,9 @@ type UserModal = "create" | "edit" | "delete" | null;
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
+  const [page, setPage] = useState(1);
+  const [size, setSize] = useState(10);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [modalToShow, setModalToShow] = useState<UserModal>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -24,25 +27,39 @@ export default function UsersPage() {
   const canAccessUsers = hasModuleAccess(user, "user");
   const apiErrorHandler = useApiErrorHandler();
 
-  const fetchData = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
-      const [usersResponse, rolesResponse] = await Promise.all([
-        userService.getAll(),
-        userService.getRoles(),
-      ]);
+      const usersResponse = await userService.getAll({ page, size });
       setUsers(usersResponse.data.data);
-      setRoles(rolesResponse.data.data);
+      setTotal(
+        usersResponse.data.total ??
+          usersResponse.data.meta?.total ??
+          usersResponse.data.data.length,
+      );
     } catch (err) {
       apiErrorHandler(err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiErrorHandler, page, size]);
+
+  const fetchRoles = useCallback(async () => {
+    try {
+      const rolesResponse = await userService.getRoles();
+      setRoles(rolesResponse.data.data);
+    } catch (err) {
+      apiErrorHandler(err);
+    }
+  }, [apiErrorHandler]);
 
   useEffect(() => {
-    void fetchData();
-  }, []);
+    void fetchUsers();
+  }, [fetchUsers]);
+
+  useEffect(() => {
+    void fetchRoles();
+  }, [fetchRoles]);
 
   const closeModal = () => {
     setModalToShow(null);
@@ -67,8 +84,9 @@ export default function UsersPage() {
   const handleSuccess = async () => {
     closeModal();
     try {
-      const { data } = await userService.getAll();
+      const { data } = await userService.getAll({ page, size });
       setUsers(data.data);
+      setTotal(data.total ?? data.meta?.total ?? data.data.length);
     } catch (err) {
       apiErrorHandler(err);
     }
@@ -109,6 +127,16 @@ export default function UsersPage() {
           data={users}
           columns={columns}
           emptyMessage="No users found."
+          pagination={{
+            page,
+            size,
+            total,
+            onPageChange: setPage,
+            onPageSizeChange: (nextSize) => {
+              setSize(nextSize);
+              setPage(1);
+            },
+          }}
         />
       </div>
 

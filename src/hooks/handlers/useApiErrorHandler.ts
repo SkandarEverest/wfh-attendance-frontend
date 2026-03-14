@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ServiceError } from "@/services/base/ServiceError";
@@ -10,7 +11,7 @@ export const useApiErrorHandler = () => {
   const location = useLocation();
   const resetState = useAuthStore((s) => s.reset);
 
-  return (e: unknown) => {
+  return useCallback((e: unknown) => {
     if (e instanceof ServiceError) {
       switch (e.status) {
         case 401:
@@ -41,5 +42,5 @@ export const useApiErrorHandler = () => {
 
     toast.error("An unexpected error occurred.");
     return "An unexpected error occurred.";
-  };
+  }, [location.pathname, navigate, resetState]);
 };

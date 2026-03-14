@@ -12,16 +12,55 @@ interface TableProps<T> {
   data: T[];
   columns: ColumnDef<T, unknown>[];
   emptyMessage?: string;
+  pagination?: {
+    page: number;
+    size: number;
+    total: number;
+    onPageChange: (page: number) => void;
+    onPageSizeChange: (size: number) => void;
+  };
 }
 
 export default function Table<T>({
   data,
   columns,
   emptyMessage = "No data yet.",
+  pagination,
 }: Readonly<TableProps<T>>) {
+  const manualPagination = Boolean(pagination);
+
   const table = useReactTable({
     data,
     columns,
+    manualPagination,
+    rowCount: pagination?.total,
+    state: pagination
+      ? {
+          pagination: {
+            pageIndex: Math.max(pagination.page - 1, 0),
+            pageSize: pagination.size,
+          },
+        }
+      : undefined,
+    onPaginationChange: pagination
+      ? (updater) => {
+          const current = {
+            pageIndex: Math.max(pagination.page - 1, 0),
+            pageSize: pagination.size,
+          };
+          const next =
+            typeof updater === "function" ? updater(current) : updater;
+
+          if (next.pageSize !== current.pageSize) {
+            pagination.onPageSizeChange(next.pageSize);
+            return;
+          }
+
+          if (next.pageIndex !== current.pageIndex) {
+            pagination.onPageChange(next.pageIndex + 1);
+          }
+        }
+      : undefined,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
@@ -68,7 +107,9 @@ export default function Table<T>({
         {data.length === 0 && <EmptyData message={emptyMessage} />}
       </div>
 
-      {data.length > 0 && <Pagination table={table} />}
+      {(pagination ? pagination.total > 0 : data.length > 0) && (
+        <Pagination table={table} />
+      )}
     </div>
   );
 }

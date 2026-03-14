@@ -19,10 +19,10 @@ export const userService = {
     >();
   },
 
-  getAll: async () => {
+  getAll: async (params?: { page?: number; size?: number }) => {
     return new Service(serviceUrls.usersPath(), getToken()).get<
       PaginatedResponse<User>
-    >();
+    >(params);
   },
 
   getById: async (id: number) => {
