@@ -1,0 +1,131 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { userService } from "@/services/userService";
+import type { Role, User } from "@/types";
+import { userColumns } from "@/hooks/tables/columns/userColumns";
+import { useApiErrorHandler } from "@/hooks/handlers/useApiErrorHandler";
+import Table from "@/components/common/Table";
+import Button from "@/components/common/Button";
+import CreateUserModal from "./partials/modals/CreateUserModal";
+import EditUserModal from "./partials/modals/EditUserModal";
+import DeleteUserModal from "./partials/modals/DeleteUserModal";
+
+type UserModal = "create" | "edit" | "delete" | null;
+
+export default function UsersPage() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modalToShow, setModalToShow] = useState<UserModal>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const apiErrorHandler = useApiErrorHandler();
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [usersResponse, rolesResponse] = await Promise.all([
+        userService.getAll(),
+        userService.getRoles(),
+      ]);
+      setUsers(usersResponse.data.data);
+      setRoles(rolesResponse.data.data);
+    } catch (err) {
+      apiErrorHandler(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void fetchData();
+  }, []);
+
+  const closeModal = () => {
+    setModalToShow(null);
+    setSelectedUser(null);
+  };
+
+  const handleCreate = () => {
+    setSelectedUser(null);
+    setModalToShow("create");
+  };
+
+  const handleEdit = (user: User) => {
+    setSelectedUser(user);
+    setModalToShow("edit");
+  };
+
+  const handleDelete = (user: User) => {
+    setSelectedUser(user);
+    setModalToShow("delete");
+  };
+
+  const handleSuccess = async () => {
+    closeModal();
+    try {
+      const { data } = await userService.getAll();
+      setUsers(data.data);
+    } catch (err) {
+      apiErrorHandler(err);
+    }
+  };
+
+  const columns = userColumns({ onEdit: handleEdit, onDelete: handleDelete });
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-200 border-t-blue-600" />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div>
+        <div className="mb-2 text-sm text-gray-500">
+          <Link to="/" className="hover:text-gray-700 hover:underline">
+            Dashboard
+          </Link>
+          <span className="mx-2">/</span>
+          <span className="text-gray-700">Users</span>
+        </div>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">Users</h1>
+          <Button variant="primary" onClick={handleCreate}>
+            Create User
+          </Button>
+        </div>
+
+        <Table
+          data={users}
+          columns={columns}
+          emptyMessage="No users found."
+        />
+      </div>
+
+      <CreateUserModal
+        open={modalToShow === "create"}
+        onCancel={closeModal}
+        onSuccess={handleSuccess}
+        roles={roles}
+      />
+
+      <EditUserModal
+        open={modalToShow === "edit"}
+        userId={selectedUser?.id ?? null}
+        onCancel={closeModal}
+        onSuccess={handleSuccess}
+        roles={roles}
+      />
+
+      <DeleteUserModal
+        open={modalToShow === "delete"}
+        userId={selectedUser?.id ?? null}
+        displayName={selectedUser?.name}
+        onCancel={closeModal}
+        onSuccess={handleSuccess}
+      />
+    </>
+  );
+}
